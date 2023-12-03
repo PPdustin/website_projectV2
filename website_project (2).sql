@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 29, 2023 at 02:22 PM
+-- Generation Time: Dec 03, 2023 at 05:55 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -24,6 +24,29 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `calendar_event_master`
+--
+
+CREATE TABLE `calendar_event_master` (
+  `event_id` int(11) NOT NULL,
+  `event_name` varchar(255) DEFAULT NULL,
+  `event_start_date` date DEFAULT NULL,
+  `event_end_date` date DEFAULT NULL,
+  `is_approved` tinyint(1) NOT NULL,
+  `venue` varchar(255) NOT NULL,
+  `submitted_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `calendar_event_master`
+--
+
+INSERT INTO `calendar_event_master` (`event_id`, `event_name`, `event_start_date`, `event_end_date`, `is_approved`, `venue`, `submitted_by`) VALUES
+(4, 'Party', '2023-12-03', '2023-12-03', 1, 'CA1', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `club`
 --
 
@@ -33,6 +56,13 @@ CREATE TABLE `club` (
   `club_description` varchar(255) NOT NULL,
   `facilitator` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `club`
+--
+
+INSERT INTO `club` (`club_id`, `club_name`, `club_description`, `facilitator`) VALUES
+(1, 'Computer Club', 'Computer Club', 1);
 
 -- --------------------------------------------------------
 
@@ -45,6 +75,13 @@ CREATE TABLE `course` (
   `course_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `course`
+--
+
+INSERT INTO `course` (`course_id`, `course_name`) VALUES
+(1, 'CS');
+
 -- --------------------------------------------------------
 
 --
@@ -55,7 +92,8 @@ CREATE TABLE `events` (
   `event_id` int(10) NOT NULL,
   `event_name` varchar(255) NOT NULL,
   `event_description` varchar(255) NOT NULL,
-  `clubs_associated` int(11) NOT NULL
+  `clubs_associated` int(11) NOT NULL,
+  `date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -70,6 +108,13 @@ CREATE TABLE `faculty` (
   `last_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `faculty`
+--
+
+INSERT INTO `faculty` (`faculty_id`, `first_name`, `last_name`) VALUES
+(1, 'Ish', 'Alvarico');
+
 -- --------------------------------------------------------
 
 --
@@ -81,6 +126,13 @@ CREATE TABLE `position` (
   `position_name` varchar(255) NOT NULL,
   `position_description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `position`
+--
+
+INSERT INTO `position` (`position_id`, `position_name`, `position_description`) VALUES
+(1, 'President', 'President');
 
 -- --------------------------------------------------------
 
@@ -98,14 +150,29 @@ CREATE TABLE `student` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `student`
+--
+
+INSERT INTO `student` (`student_id`, `first_name`, `last_name`, `course`, `club`, `position`) VALUES
+(1, 'Dustin', 'Wata', 1, 1, 1);
+
+--
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `calendar_event_master`
+--
+ALTER TABLE `calendar_event_master`
+  ADD PRIMARY KEY (`event_id`),
+  ADD KEY `submitted_by` (`submitted_by`);
 
 --
 -- Indexes for table `club`
 --
 ALTER TABLE `club`
-  ADD PRIMARY KEY (`club_id`);
+  ADD PRIMARY KEY (`club_id`),
+  ADD KEY `facilitator` (`facilitator`);
 
 --
 -- Indexes for table `course`
@@ -145,16 +212,22 @@ ALTER TABLE `student`
 --
 
 --
+-- AUTO_INCREMENT for table `calendar_event_master`
+--
+ALTER TABLE `calendar_event_master`
+  MODIFY `event_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `club`
 --
 ALTER TABLE `club`
-  MODIFY `club_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `club_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `course_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `course_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -166,23 +239,35 @@ ALTER TABLE `events`
 -- AUTO_INCREMENT for table `faculty`
 --
 ALTER TABLE `faculty`
-  MODIFY `faculty_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `faculty_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `position`
 --
 ALTER TABLE `position`
-  MODIFY `position_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `position_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `student`
 --
 ALTER TABLE `student`
-  MODIFY `student_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `student_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `calendar_event_master`
+--
+ALTER TABLE `calendar_event_master`
+  ADD CONSTRAINT `calendar_event_master_ibfk_1` FOREIGN KEY (`submitted_by`) REFERENCES `student` (`student_id`);
+
+--
+-- Constraints for table `club`
+--
+ALTER TABLE `club`
+  ADD CONSTRAINT `club_ibfk_1` FOREIGN KEY (`facilitator`) REFERENCES `faculty` (`faculty_id`);
 
 --
 -- Constraints for table `student`
