@@ -90,7 +90,8 @@ $.ajax({
             start: result[i].start,
             end: result[i].end,
             color: result[i].color,
-            url: result[i].url
+            url: result[i].url,
+			venue: result[i].venue
         }); 	
     })
 	var calendar = $('#calendar').fullCalendar({
@@ -109,7 +110,7 @@ $.ajax({
         events: events,
 	    eventRender: function(event, element, view) { 
             element.bind('click', function() {
-					alert("Event : " + event.title );
+					alert("Event : " + event.title + "\nVenue: " + event.venue);
 					
 				});
     	}
