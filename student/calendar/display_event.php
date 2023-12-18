@@ -1,6 +1,6 @@
 <?php                
 require 'database_connection.php'; 
-$display_query = "select event_id,event_name,event_start_date,event_end_date, venue from calendar_event_master";             
+$display_query = "select event_id,event_name,event_start_date,event_end_date, venue from calendar_event_master WHERE is_approved = 2";             
 $results = mysqli_query($con,$display_query);   
 $count = mysqli_num_rows($results);  
 if($count>0) 

@@ -1,5 +1,11 @@
 <?php
 	session_start();
+	$club = $_SESSION['club'];
+	if($club == "None")
+	{
+		header("Location: ../join.php");
+		exit();
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,6 +107,17 @@
   margin-bottom: 8px;
   font-size: 16px;
 }
+
+        .approve-btn {
+            padding: 5px 10px;
+            border: none;
+            background-color: #0a541e;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        
 
 	  
   </style>
@@ -215,14 +232,40 @@
 		if ($conn->connect_error) {
           die("Connection failed: " . $conn->connect_error);
         }
-		$club_act = $conn->query("SELECT calendar_event_master.is_approved, club.club_name, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.event_end_date, calendar_event_master.submitted_by FROM calendar_event_master
+		$club_act = $conn->query("SELECT calendar_event_master.event_id, calendar_event_master.parents_permit, calendar_event_master.is_approved, club.club_name, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.event_end_date, calendar_event_master.submitted_by FROM calendar_event_master
 		INNER JOIN student ON calendar_event_master.submitted_by = CONCAT(student.first_name, ' ' , student.last_name)
 		INNER JOIN club ON club_id = student.club
-		WHERE club.club_name = '$club' AND calendar_event_master.is_approved = 2");
+		WHERE club.club_name = '$club' AND calendar_event_master.is_approved = 2 AND calendar_event_master.event_start_date > CURDATE()");
 		if($club_act->num_rows > 0)
 		{
 			while ($row = $club_act->fetch_assoc()) {
-            echo '<li>' . $row['event_name'] . ' - ' . $row['event_start_date'] . '</li>';
+				if($row['parents_permit'] == NULL)
+				{
+					echo "<li style='margin: 10px;'>" . $row['event_name'] . ' - ' . $row['event_start_date'] . '</li>';
+				}
+				else if($row['parents_permit'] == "required")
+				{
+					echo "<li style='margin: 10px;'>" . $row['event_name'] . ' - ' . $row['event_start_date'] . "<button style='padding: 5px 10px;
+            border: none;
+            background-color: #0a541e;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+			margin-left: 10px' class='approve-btn' onclick='requirePermit(" . $row["event_id"] . ")'>Submit Permit</button>".'</li>';
+				}
+				else if($row['parents_permit'] == "submitted")
+				{
+					$event = $row["event_id"];
+					$permit = $conn->query("SELECT * from permit WHERE event_id = '$event'");
+					while($per = $permit->fetch_assoc())
+					{
+						
+						$submitted_by = $per["submitted_by"];
+						$fileTitle = $per["file_title"];
+						$filePath = $per["file_path"];
+						echo "<li style='margin: 10px;'>" . $row['event_name'] . ' - ' . "<p><a href='$filePath' download>Download File</a></p>. </li>";	
+					}
+				}
 			}
         }
 		else{
@@ -245,7 +288,7 @@
 		$club_act = $conn->query("SELECT calendar_event_master.is_approved, club.club_name, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.event_end_date, calendar_event_master.submitted_by FROM calendar_event_master
 		INNER JOIN student ON calendar_event_master.submitted_by = CONCAT(student.first_name, ' ' , student.last_name)
 		INNER JOIN club ON club_id = student.club
-		WHERE club.club_name = '$club' AND calendar_event_master.is_approved = 0");
+		WHERE club.club_name = '$club' AND calendar_event_master.is_approved = 0 OR calendar_event_master.is_approved = 1");
 		if($club_act->num_rows > 0)
 		{
 			while ($row = $club_act->fetch_assoc()) {
@@ -258,6 +301,22 @@
 		?></p>
     </div>
   </div>
+  
+      <script>
+       function requirePermit(eventId) {
+			// Send an AJAX request to update the event status
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState === 4 && this.status === 200) {
+					// Request completed and successful, navigate to submit_permit.php with parameters
+					var url = 'submit_permit.php?eventId=' + eventId;
+					window.location.href = url;
+				}
+			};
+			xhttp.open("GET", "submit_permit.php?eventId=" + eventId, true);
+			xhttp.send();
+		}
+    </script>
 
   <!-- Bootstrap JS and dependencies -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

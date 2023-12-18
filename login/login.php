@@ -30,6 +30,7 @@ if (isset($_POST['submit'])) {
         session_start();
 		$_SESSION['user_type'] = $login['user_type'];
 		
+		
 		if($_SESSION['user_type'] == 'student'){
 			
 			$user = $conn->query("SELECT account.first_name, account.last_name, account.user_type, club.club_name FROM account 
@@ -48,6 +49,28 @@ if (isset($_POST['submit'])) {
 		else if($_SESSION['user_type'] == 'osa'){
 			echo "asdf";
 			header("Location: ../osa/calendar/dynamic-full-calendar.html");
+			exit;
+		}
+		else{
+			$user = $conn->query("SELECT * FROM account WHERE user_name = '$username' AND password = '$password'");
+			$row = $user->fetch_assoc();
+			$_SESSION['first_name'] = $row['first_name'];
+			$_SESSION['last_name'] = $row['last_name'];
+			$_SESSION['clubs'] = array();
+			$first = $row['first_name'];
+			$last = $row['last_name'];
+			$clubQ = $conn->query("SELECT club.club_name from club
+			INNER JOIN faculty ON faculty.faculty_id = club.facilitator
+			WHERE faculty.first_name = '$first' AND faculty.last_name = '$last'");
+			if ($clubQ->num_rows > 0) {
+				// Output data of each row
+				while ($row = $clubQ->fetch_assoc()) {
+					$_SESSION['clubs'][] = $row['club_name'];
+				}
+			} else {
+				echo "0 results";
+			}
+			header("Location: ../faculty/calendar/dynamic-full-calendar.html");
 			exit;
 		}
 		

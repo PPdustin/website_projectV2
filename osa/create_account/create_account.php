@@ -123,7 +123,13 @@
 		<li class="nav-item">
           <a class="nav-link" href="../create_account/create_account.php">Create Account</a>
         </li>
-        
+		
+		<li class="nav-item">
+          <a class="nav-link" href="../register/register.php">Register Club</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="../requests/requests.php">Requests</a>
+        </li>
       </ul>
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -140,7 +146,7 @@
 
 
 
-  <form action="/submit_registration.php" method="post">
+  <form action="create_account.php" method="post">
     <h1>Create Account</h1>
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required><br>
@@ -172,6 +178,68 @@
       cursor: pointer;
       transition: background-color 0.3s;">
   </form>
+  
+  
+  
+  <p style="font-family: Arial, sans-serif;margin: auto;text-align: center;">
+  <?php
+	$servername = "localhost";
+	$username = "root";
+	$password = "";
+	$dbname = "website_project";
+
+	// Create connection
+	$conn = new mysqli($servername, $username, $password, $dbname);
+
+	// Check connection
+	if ($conn->connect_error) {
+		die("Connection failed: " . $conn->connect_error);
+	}
+
+	// Check if form is submitted
+	if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		// Get form data
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+		$firstname = $_POST['firstname'];
+		$lastname = $_POST['lastname'];
+		$usertype = $_POST['usertype'];
+
+		// Prepare SQL statement to insert data into your table
+		$sql = "INSERT INTO account (user_name, password, first_name, last_name, user_type)
+				VALUES ('$username', '$password', '$firstname', '$lastname', '$usertype')";
+
+		// Execute the SQL query
+		if ($conn->query($sql) === TRUE) {
+			//echo "New record created successfully";
+		} else {
+			echo "Error 1: " . $sql . "<br>" . $conn->error;
+		}
+		
+		if($usertype == "student")
+		{
+			if ($conn->query("INSERT INTO student (first_name, last_name, course, club, position)
+				VALUES ('$firstname', '$lastname', 1, 3, 7)") === TRUE) {
+			echo "New record created successfully";
+		} else {
+			echo "Error 2: " . $sql . "<br>" . $conn->error;
+		}
+		}
+		else if($usertype == "faculty")
+		{
+			if ($conn->query("INSERT INTO faculty (first_name, last_name)
+				VALUES ('$firstname', '$lastname')") === TRUE) {
+			echo "New record created successfully";
+		} else {
+			echo "Error 2: " . $sql . "<br>" . $conn->error;
+		}
+		}
+	}
+
+	// Close the database connection
+	$conn->close();
+  ?>
+  </p>
   
   
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -156,6 +156,16 @@
     </div>
   </nav>
 
+<h5>
+<?php
+
+	$club = $_SESSION['club'];
+	echo $club == "None" ;
+?>
+
+</h5>
+
+
   <!-- Bootstrap JS and dependencies -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
