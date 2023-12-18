@@ -13,7 +13,10 @@ if($count>0)
 	$data_arr[$i]['title'] = $data_row['event_name'];
 	$data_arr[$i]['start'] = date("Y-m-d", strtotime($data_row['event_start_date']));
 	$data_arr[$i]['end'] = date("Y-m-d", strtotime($data_row['event_end_date']));
-	$data_arr[$i]['color'] = '#'.substr(uniqid('green'),-6); // 'green'; pass colour name
+	
+	$data_arr[$i]['color'] = '#63d481'; // Random hex color in a lighter range of green
+
+
 	//$data_arr[$i]['url'] = 'https://www.shinerweb.com';
 	$data_arr[$i]['venue'] = $data_row['venue'];
 	
