@@ -80,36 +80,7 @@
 <body>
 
 
-<nav class="navbar navbar-expand-lg">
-    <a class="navbar-brand" href="#">Clubs Information System</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="../club/club.php">Club</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="../calendar/dynamic-full-calendar.html">Calendar</a>
-        </li>
-		<li class="nav-item">
-          <a class="nav-link" href="../requests/requests.php">Requests</a>
-        </li>
-
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          
-		  <form class="btn btn-logout" action="../logout.php" method="post">
-		<input type="submit" name="submit_button" value="Logout">
-		</form>
-		  
-        </li>
-      </ul>
-    </div>
-  </nav>
-
+<?php include '../navigation.html'; ?>
 
 <ul style="list-style-type: none;
             padding: 0;
