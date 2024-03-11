@@ -68,6 +68,10 @@ body {
       background-color: #08391b;
       border-color: #08391b;
     }
+	h5{
+	margin: 30px;
+	font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -198,11 +202,12 @@ $.ajax({
 			},
         events: events,
 	    eventRender: function(event, element, view) { 
-            element.bind('click', function() {
-					alert("Event : " + event.title + "\nVenue: " + event.venue);
-					
-				});
-    	}
+			element.css('cursor', 'pointer'); // Change cursor to pointer when hovering over the event
+			element.click(function() {
+				var eventDetailsUrl = 'event_details.php?event_id=' + event.event_id; // Assuming you have a PHP page named event_details.php to display event details
+				window.location.href = eventDetailsUrl; // Redirect to the event details page
+			});
+		}
 		}); //end fullCalendar block	
 	  },//end success block
 	  error: function (xhr, status) {

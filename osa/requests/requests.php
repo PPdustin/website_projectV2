@@ -89,6 +89,56 @@
             background-color: #08391b;
         }
 
+        .decline-btn {
+            padding: 5px 10px;
+            border: none;
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+            margin: 5px;
+        }
+
+        .decline-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
+         /* Styles for the comment box */
+         .comment-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        .comment-content {
+            position: relative;
+        }
+
+        .closeBtn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .closeBtn:hover {
+            color: #ff0000;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
   </style>
 </head>
 <body>
@@ -117,7 +167,7 @@
 		INNER JOIN club ON club.club_id = student.club
 		INNER JOIN faculty ON faculty.faculty_id = club.facilitator
 		LEFT JOIN permit ON calendar_event_master.event_id = permit.event_id
-		WHERE (calendar_event_master.is_approved = 1 OR calendar_event_master.is_approved = 2) AND calendar_event_master.event_start_date > CURDATE()"; // Adjust your query accordingly
+		WHERE (calendar_event_master.is_approved = 1) AND calendar_event_master.event_start_date > CURDATE()"; // Adjust your query accordingly
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -133,12 +183,10 @@
 				echo "<td>" . $row["fac"] . "</td>";
 				if($row["is_approved"] == 1)
 				{
-					echo "<td><button class='approve-btn' onclick='approveEvent(" . $row["event_id"] . ")'>Approve</button></td>";
+					echo "<td><button class='approve-btn' onclick='approveEvent(" . $row["event_id"] . ")'>Approve</button>";
+                    echo "<button class='decline-btn' onclick='openCommentBox(" . $row["event_id"] . ")'>Decline</button></td>";
 				}
-				else if($row["is_approved"] == 2 and $row["parents_permit"] == NULL)
-				{
-					echo "<td><button class='approve-btn' onclick='requirePermit(" . $row["event_id"] . ")'>Require Permit</button></td>";
-				}
+				
 				else if($row["is_approved"] == 2 and $row["parents_permit"] == "required")
 				{
 					echo "<td>Request sent</td>";
@@ -160,6 +208,22 @@
         // Close the database connection
         $conn->close();
     ?>
+    <div id="commentBox" class="comment-box">
+    <div class="comment-content">
+        <span class="closeBtn" id="closeBtn">&times;</span>
+        <h2>Leave a Comment</h2>
+        <form>
+            <textarea id="commentText" placeholder="Write your comment here..."></textarea>
+            <input type="hidden" id="eventId">
+            <button style="padding: 8px 16px;
+        background-color: #0a541e; /* Change the background color to #0a541e */
+        color: #fff; /* Text color */
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;    " type="button" onclick="submitComment()">Submit</button>
+        </form>
+    </div>
+</div>
 
     <script>
         // Function to handle event approval
@@ -175,18 +239,33 @@
             xhttp.open("GET", "approve_event.php?eventId=" + eventId, true);
             xhttp.send();
         }
-		function requirePermit(eventId) {
-            // Send an AJAX request to update the event status
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    // Reload the page after approval
-                    location.reload();
-                }
-            };
-            xhttp.open("GET", "require_permit.php?eventId=" + eventId, true);
-            xhttp.send();
-        }
+	    function openCommentBox(eventId) {
+        // Pass the event ID to track which event is being declined
+        // You can use this ID to send an AJAX request to the server if needed
+        document.getElementById('commentBox').style.display = 'block';
+        document.getElementById('eventId').value = eventId; // Set the event ID in a hidden input field
+    }
+
+    // Function to close the comment box
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        document.getElementById('commentBox').style.display = 'none';
+    });
+
+    // Function to submit the comment
+    function submitComment() {
+        var eventId = document.getElementById('eventId').value; // Get the event ID
+        var commentText = document.getElementById('commentText').value; // Get the comment text
+        // Send a GET request to decline_event.php with the event ID and comment data
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                // Reload the page after handling the comment submission
+                location.reload();
+            }
+        };
+        xhttp.open("GET", "decline_event.php?eventId=" + eventId + "&comment=" + commentText, true);
+        xhttp.send();
+    }
     </script>
 
 

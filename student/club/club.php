@@ -118,11 +118,30 @@
         }
 
         
+        
+.unapproved-events-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.unapproved-events-list li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.unapproved-events-list li .comment {
+    color: #666;
+    font-style: italic;
+}
+
 
 	  
   </style>
 </head>
 <body>
+
 
 
 <?php include '../navigation.html'; ?>
@@ -255,32 +274,29 @@
 	  </p>
     </div>
     <div class="box">
-      <h2>Unapproved Events</h2>
-      <p><p>
-		<?php
-			$conn = new mysqli("localhost", "root", "", "website_project");
-		$firstName = $_SESSION['first_name'];
-		$lastName = $_SESSION['last_name'];
-		$club = $_SESSION['club'];
-		if ($conn->connect_error) {
-          die("Connection failed: " . $conn->connect_error);
+    <h2>Declined Events</h2>
+<ul class="unapproved-events-list">
+    <?php
+    $conn = new mysqli("localhost", "root", "", "website_project");
+    $firstName = $_SESSION['first_name'];
+    $lastName = $_SESSION['last_name'];
+    $club = $_SESSION['club'];
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $club_act = $conn->query("SELECT calendar_event_master.is_approved, calendar_event_master.comment, club.club_name, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.event_end_date, calendar_event_master.submitted_by FROM calendar_event_master
+    INNER JOIN student ON calendar_event_master.submitted_by = CONCAT(student.first_name, ' ' , student.last_name)
+    INNER JOIN club ON club_id = student.club
+    WHERE club.club_name = '$club' AND calendar_event_master.is_approved = -1");
+    if($club_act->num_rows > 0) {
+        while ($row = $club_act->fetch_assoc()) {
+            echo '<li><strong>' . $row['event_name'] . '</strong> - ' . $row['event_start_date'] . '<br><span class="comment">Comment: ' . $row['comment'] . '</span></li>';
         }
-		$club_act = $conn->query("SELECT calendar_event_master.is_approved, club.club_name, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.event_end_date, calendar_event_master.submitted_by FROM calendar_event_master
-		INNER JOIN student ON calendar_event_master.submitted_by = CONCAT(student.first_name, ' ' , student.last_name)
-		INNER JOIN club ON club_id = student.club
-		WHERE club.club_name = '$club' AND calendar_event_master.is_approved = 0 OR calendar_event_master.is_approved = 1");
-		if($club_act->num_rows > 0)
-		{
-			while ($row = $club_act->fetch_assoc()) {
-            echo '<li>' . $row['event_name'] . ' - ' . $row['event_start_date'] . '</li>';
-			}
-        }
-		else{
-			echo "None";
-		}
-		?></p>
-    </div>
-  </div>
+    } else {
+        echo "<li>None</li>";
+    }
+    ?>
+</ul>
   
       <script>
        function requirePermit(eventId) {
