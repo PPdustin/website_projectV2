@@ -173,7 +173,7 @@
 
     if ($result->num_rows > 0) {
         echo "<table>";
-        echo "<tr><th>Event Name</th><th>Event Date</th><th>Event Venue</th><th>Submitted by</th><th>Action</th></tr>";
+        echo "<tr><th>Event Name</th><th>Event Date</th><th>Event Venue</th><th>Submitted by</th><th>Document</th><th>Action</th></tr>";
 
         while ($row = $result->fetch_assoc()) {
             echo "<tr>";
@@ -181,6 +181,7 @@
             echo "<td>" . $row["event_start_date"] . "</td>";
             echo "<td>" . $row["facility_name"] . "</td>";
             echo "<td>" . $row["submitted_by"] . "</td>";
+            echo "<td>" . '<a href=./view_image.php?filename='. $row["imagePath"] .'> Document </a>' . "</td>";
             echo "<td>";
             echo "<button class='approve-btn' onclick=\"approveEvent('" . $row["event_id"] . "')\">Approve</button>";
             echo "<button class='decline-btn' onclick=\"openCommentBox('" . $row["event_id"] . "')\">Decline</button>";

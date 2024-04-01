@@ -162,7 +162,7 @@
         }
 
         // Fetch events that need approval from the database
-        $sql = "SELECT CONCAT(faculty.first_name, ' ', faculty.last_name) AS fac, permit.file_title, permit.file_path, calendar_event_master.is_approved, calendar_event_master.parents_permit, club.club_name, student.first_name, student.last_name, calendar_event_master.event_id, calendar_event_master.event_name, calendar_event_master.event_start_date FROM calendar_event_master
+        $sql = "SELECT CONCAT(faculty.first_name, ' ', faculty.last_name) AS fac, permit.file_title, permit.file_path, calendar_event_master.is_approved, calendar_event_master.parents_permit, club.club_name, student.first_name, student.last_name, calendar_event_master.event_id, calendar_event_master.event_name, calendar_event_master.event_start_date, calendar_event_master.imagePath FROM calendar_event_master
 		INNER JOIN student ON CONCAT(student.first_name, ' ', student.last_name) = calendar_event_master.submitted_by
 		INNER JOIN club ON club.club_id = student.club
 		INNER JOIN faculty ON faculty.faculty_id = club.facilitator
@@ -173,7 +173,7 @@
         if ($result->num_rows > 0) {
 			echo "<p style='margin: 20px; font-size: 30px;'>Upcoming events</p>";
             echo "<table>";
-            echo "<tr><th>Event Name</th><th>Event Date</th><th>Club</th><th>Facilitator</th><th>Action</th></tr>";
+            echo "<tr><th>Event Name</th><th>Event Date</th><th>Club</th><th>Facilitator</th><th>Document</th><th>Action</th></tr>";
 
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
@@ -181,6 +181,7 @@
                 echo "<td>" . $row["event_start_date"] . "</td>";
 				echo "<td>" . $row["club_name"] . "</td>";
 				echo "<td>" . $row["fac"] . "</td>";
+                echo "<td>" . '<a href=./view_image.php?filename='. $row["imagePath"] .'> Document </a>' . "</td>";
 				if($row["is_approved"] == 1)
 				{
 					echo "<td><button class='approve-btn' onclick='approveEvent(" . $row["event_id"] . ")'>Approve</button>";

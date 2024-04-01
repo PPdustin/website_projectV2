@@ -155,7 +155,7 @@
   <div class="container">
   
     <h1>Event Request</h1>
-    <form action="request.php" method="post">
+    <form action="request.php" method="post" enctype="multipart/form-data">
       <div class="form-group">
         <label for="eventName">Event Name:</label>
         <input type="text" id="eventName" name="eventName" class="form-control">
@@ -164,7 +164,7 @@
 
       <div class="form-group">
     <label for="eventVenue">Event Venue:</label>
-    <select id="eventVenue" name="eventVenue" class="form-control" enctype="multipart/form-data">
+    <select id="eventVenue" name="eventVenue" class="form-control">
         <option value="">Select Venue</option> <!-- Default option -->
         <?php
         // Connect to your database (replace with your database credentials)
@@ -217,14 +217,11 @@
         <!-- Available time slots will be displayed here -->
     </div>
 
-    <div class="form-group">
-            <label for="image">Upload Image:</label>
-            <p>Image of event request scanned document (REQUIRED)</p>
-            <input type="file" id="image" name="image" class="form-control-file" required>
-        </div>
-        
-
-     
+      <div class="form-group">
+        <label for="file">Upload Image:</label>
+        <input type="file" name="file" id="file">
+        <p>Scanned document of approval for event request is required.</p>
+      </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 	
@@ -248,6 +245,20 @@ if ($conn->connect_error) {
 
 // Check if the form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+  $file = $_FILES['file'];
+  $fileTmpName = $file['tmp_name'];
+  $fileExt = explode('.', $file['name']);
+  $fileActualExt = strtolower(end($fileExt));
+  $fileNameNew = uniqid('', true).".".$fileActualExt;
+
+  $fileDestination = '../../uploads/'.$fileNameNew;
+  move_uploaded_file($fileTmpName, $fileDestination);
+
+
+
+
+
     // Retrieve form data
     $eventName = $_POST["eventName"];
     $eventVenue = $_POST["eventVenue"];
@@ -257,54 +268,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $is_approved = 0;
     $full_name = $_SESSION["first_name"]." ".$_SESSION["last_name"];
 
-    if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
-      $target_dir = "uploads/"; // Directory where the file will be saved
-      $target_file = $target_dir . basename($_FILES["image"]["name"]); // Full path to the file
-      $uploadOk = 1;
-      $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION)); // File extension
-
-      // Check if the file already exists
-      if (file_exists($target_file)) {
-          echo "Sorry, file already exists.";
-          $uploadOk = 0;
-      }
-
-      // Check file size
-      if ($_FILES["image"]["size"] > 5000000) { // Adjust the file size limit as needed (currently set to 5MB)
-          echo "Sorry, your file is too large.";
-          $uploadOk = 0;
-      }
-
-      // Allow only certain file formats
-      if (!in_array($imageFileType, ["jpg", "jpeg", "png", "gif"])) {
-          echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-          $uploadOk = 0;
-      }
-
-      // Check if $uploadOk is set to 0 by an error
-      if ($uploadOk == 0) {
-          echo "Sorry, your file was not uploaded.";
-          // if everything is ok, try to upload file
-      } else {
-          if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-              echo "The file ". htmlspecialchars(basename($_FILES["image"]["name"])). " has been uploaded.";
-              // Now you can store $target_file in your database along with other form data
-          } else {
-              echo "Sorry, there was an error uploading your file.";
-          }
-      }
-  }
-
     // Check if at least one time slot is selected
     if (!empty($_POST['timeSlot'])) {
         $unique_id = crc32(uniqid('', true));
         $sql_cem = "INSERT INTO calendar_event_master (event_id, event_name, facility, event_start_date, is_approved, submitted_by, imagePath) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql_cem);
-        $stmt->bind_param("sssssss", $unique_id, $eventName, $eventVenue, $eventStartDay, $is_approved, $full_name, $target_file);
+        $stmt->bind_param("sssssss", $unique_id, $eventName, $eventVenue, $eventStartDay, $is_approved, $full_name, $fileDestination);
         if ($stmt->execute()) {
-          echo "Request submitted successfully!";
+          //echo "Request submitted successfully!";
         } else {
-            echo "Error: " ."target dir: " . $target_dir . "sql: " . $sql_cem . "<br>" . $conn->error;
+            echo "Error: " . $sql . "<br>" . $conn->error;
         }
         foreach ($_POST['timeSlot'] as $selectedTimeSlot) {
             // Prepare the SQL statement for insertion
@@ -329,7 +302,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Handle case when no time slot is selected
         echo "Please select at least one time slot.";
     }
-
 }
 
 // Close the database connection
